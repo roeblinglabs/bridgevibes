@@ -67,7 +67,7 @@ demo_button.onclick = function(e) {
     is_running = false;
   }else{
     window.addEventListener("devicemotion", handleMotion);
-    document.getElementById("start_demo").innerHTML = "Stop Measuring Bridge Vibrations";
+    document.getElementById("start_demo").innerHTML = "<h1>Stop Measuring Bridge Vibrations</h1>";
     demo_button.classList.remove('btn-success');
     demo_button.classList.add('btn-danger');
     is_running = true;
