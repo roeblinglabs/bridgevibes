@@ -61,13 +61,13 @@ demo_button.onclick = function(e) {
   
   if (is_running){
     window.removeEventListener("devicemotion", handleMotion);
-    demo_button.innerHTML = "Start demo";
+    demo_button.innerHTML = "Restart demo";
     demo_button.classList.add('btn-success');
     demo_button.classList.remove('btn-danger');
     is_running = false;
   }else{
     window.addEventListener("devicemotion", handleMotion);
-    document.getElementById("start_demo").innerHTML = "<h1>Stop Measuring Bridge Vibrations</h1>";
+    document.getElementById("start_demo").innerHTML = <h1>"Stop Measuring Bridge Vibrations"<h1>;
     demo_button.classList.remove('btn-success');
     demo_button.classList.add('btn-danger');
     is_running = true;
