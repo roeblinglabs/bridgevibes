@@ -230,8 +230,7 @@
             geolocation = position;
             document.getElementById("demo").innerHTML = "Latitude: " + position.coords.latitude +
               "<br>Longitude: " + position.coords.longitude +
-              "<br>Geolocation Accuracy: " + position.coords.accuracy + " (meters)"
-              "<br>Timestamp: " + position.timestamp ;
+              "<br>Geolocation Accuracy: " + position.coords.accuracy + " (meters)";
           });
         } else {
           document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
