@@ -116,9 +116,7 @@
               title: {
                 display: true,
                 text: 'PSD (g^2/Hz)'
-              },
-              min: 1e-4,
-              max: 1
+              }
             }
           }
         }
@@ -238,6 +236,20 @@
           document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
         }
       }
+
+      function generateSineWave(duration, frequency, amplitude) {
+        const numSamples = duration * sampleRate;
+        const angularFrequency = 2 * Math.PI * frequency;
+        const sineWave = [];
+
+        for (let i = 0; i < numSamples; i++) {
+          const time = i / sampleRate;
+          const sineValue = amplitude * Math.sin(angularFrequency * time);
+          sineWave.push(sineValue);
+        }
+
+        return sineWave;
+      } 
 
       function computePSD() {
         const fftSize = 256; // Size of the FFT window
