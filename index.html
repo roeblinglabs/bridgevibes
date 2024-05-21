@@ -321,7 +321,7 @@
 
       psdChart.options.scales.y.min = minPSD;
       psdChart.options.scales.y.max = maxPSD;
-      psdChart.data.labels = limitedFrequencies;
+      psdChart.data.labels = Array.from({ length: 26 }, (_, i) => i);
       psdChart.data.datasets[0].data = limitedPSD;
       psdChart.update();
 
