@@ -1,10 +1,8 @@
-
 <!doctype html>
 <html lang="en">
   <head>
     <title>Bridge Vibration Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script language="javascript" src="processing.js"></script>    
     <script language="javascript" src="dsp.js"></script>
     <style>
       #start_demo, #downloadButton {
@@ -108,15 +106,19 @@
                 text: 'Frequency (Hz)'
               },
               min: 0,
-              max: 25
+              max: 25,
+              ticks: {
+                stepSize: 5 // Vertical lines at 5 Hz intervals
+              }
             },
             y: {
+              type: 'logarithmic',
               title: {
                 display: true,
                 text: 'PSD (g^2/Hz)'
               },
-              min: 0,
-              max: 0.02
+              min: 1e-4,
+              max: 1
             }
           }
         }
@@ -237,57 +239,37 @@
         }
       }
 
-      function generateSineWave(duration, frequency, amplitude) {
-        const numSamples = duration * sampleRate;
-        const angularFrequency = 2 * Math.PI * frequency;
-        const sineWave = [];
+      function computePSD() {
+        const fftSize = 256; // Size of the FFT window
+        const overlap = fftSize / 2; // 50% overlap
+        const fft = new FFT(fftSize, sampleRate);
+        const windowFunction = new WindowFunction(DSP.HANN);
+        const numSegments = Math.floor((accelData.length - overlap) / (fftSize - overlap));
+        const psdSum = new Float32Array(fftSize / 2);
 
-        for (let i = 0; i < numSamples; i++) {
-          const time = i / sampleRate;
-          const sineValue = amplitude * Math.sin(angularFrequency * time);
-          sineWave.push(sineValue);
+        for (let i = 0; i < numSegments; i++) {
+          const start = i * (fftSize - overlap);
+          const segment = accelData.slice(start, start + fftSize);
+          const windowedSegment = windowFunction.process(segment);
+
+          fft.forward(windowedSegment);
+          const spectrum = fft.spectrum;
+
+          for (let j = 0; j < psdSum.length; j++) {
+            psdSum[j] += spectrum[j] ** 2;
+          }
         }
 
-        return sineWave;
-      } 
-
-    function computePSD() {
-
-      // // Sine wave test
-      // const duration = 5; // Duration in seconds
-      // const frequency = 10; // Frequency in Hz
-      // const amplitude = 1; // Amplitude of the sine wave
-      // accelData = generateSineWave(duration, frequency, amplitude);
-
-        const signalLength = accelData.length;
-        const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
-        // const signal = new Float32Array(accelData);
-        const paddedSignal = new Float32Array(paddedLength);
-        paddedSignal.set(accelData);
-        
-        // const fft = new FFT(signal.length, sampleRate);
-        const fft = new FFT(paddedLength, sampleRate);
-        
-        const signal = paddedSignal;
-
-        fft.forward(signal);
-        const psd = fft.spectrum;
-
-        console.log("PSD values:", psd);
-
-        const frequencyStep = sampleRate / paddedLength;
-        const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
+        const psdAvg = psdSum.map(val => val / numSegments);
+        const frequencyStep = sampleRate / fftSize;
+        const frequencies = Array.from({ length: psdAvg.length }, (_, i) => i * frequencyStep);
         const limitedFrequencies = frequencies.filter(f => f >= 0 && f <= 25);
-        const limitedPSD = psd.slice(0, limitedFrequencies.length);
-
-        console.log("Limited Frequencies:", limitedFrequencies);
-        console.log("Limited PSD values:", limitedPSD);
+        const limitedPSD = psdAvg.slice(0, limitedFrequencies.length);
 
         psdChart.data.labels = limitedFrequencies;
         psdChart.data.datasets[0].data = limitedPSD;
         psdChart.update();
-    }
-
+      }
     </script>
   </body>
 </html>
