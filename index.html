@@ -252,7 +252,7 @@
       } 
 
       function computePSD() {
-        const fftSize = 500; // Size of the FFT window, 500 is a 10 second chunk at 50 Hz sampling rate
+        const fftSize = 256; // Size of the FFT window
         const overlap = fftSize / 2; // 50% overlap
         const fft = new FFT(fftSize, sampleRate);
         const windowFunction = new WindowFunction(DSP.HANN);
