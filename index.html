@@ -6,7 +6,7 @@
     <script language="javascript" src="processing.js"></script>    
     <script language="javascript" src="dsp.js"></script>
     <style>
-      #start_demo, #downloadButton {
+      #start_demo, #downloadButton, #downloadSpectrumButton {
         font-size: 24px;
         padding: 20px;
       }
@@ -37,6 +37,7 @@
         <canvas id="psdChart" width="400" height="200"></canvas>
 
         <button id="downloadButton" class="btn btn-lg btn-primary py-1">Download Accelerometer Data</button>
+        <button id="downloadSpectrumButton" class="btn btn-lg btn-secondary py-1">Download Spectrum Data</button>
         <h2>Contact with suggestions: scott@roeblinglabs.com</h2>
       </div>
     </main>
@@ -49,6 +50,7 @@
       let accelData = [];
       let isMeasuring = false;
       let geolocation = null;
+      let psdData = { frequencies: [], psdValues: [] };
 
       // Initialize Chart.js charts
       const ctxTimeSeries = document.getElementById('timeSeriesChart').getContext('2d');
@@ -132,6 +134,7 @@
 
       document.getElementById('start_demo').addEventListener('click', toggleMeasurement);
       document.getElementById('downloadButton').addEventListener('click', downloadData);
+      document.getElementById('downloadSpectrumButton').addEventListener('click', downloadSpectrumData);
 
       function toggleMeasurement(e) {
         e.preventDefault();
@@ -239,13 +242,45 @@
         URL.revokeObjectURL(url);
       }
 
+      function downloadSpectrumData() {
+        const date = new Date();
+        const dateString = date.toLocaleDateString();
+        const timeString = date.toLocaleTimeString();
+
+        const csvHeader = `Longitude,${geolocation ? geolocation.coords.longitude : ''}\n` +
+                          `Latitude,${geolocation ? geolocation.coords.latitude : ''}\n` +
+                          `Elevation,${geolocation ? (geolocation.coords.altitude || '') : ''}\n` +
+                          `Temperature,\n` + // If you have temperature data, fill it here
+                          `Date,${dateString}\n` +
+                          `Time,${timeString}\n\n` +
+                          `Frequency (Hz),PSD (g^2/Hz)`;
+
+        const csvData = psdData.frequencies.map((frequency, index) => {
+          return `${frequency},${psdData.psdValues[index]}`;
+        });
+
+        const csvContent = [csvHeader, ...csvData].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'spectrum_data.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
       function getGeolocation() {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(position => {
             geolocation = position;
+            const date = new Date();
+            const dateString = date.toLocaleDateString();
+            const timeString = date.toLocaleTimeString();
             document.getElementById("demo").innerHTML = "Latitude: " + position.coords.latitude +
               "<br>Longitude: " + position.coords.longitude +
-              "<br>Geolocation Accuracy: " + position.coords.accuracy + " (meters)";
+              "<br>Geolocation Accuracy: " + position.coords.accuracy + " meters" +
+              "<br>Date: " + dateString +
+              "<br>Time: " + timeString;
           });
         } else {
           document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
@@ -289,6 +324,8 @@
       psdChart.data.labels = limitedFrequencies;
       psdChart.data.datasets[0].data = limitedPSD;
       psdChart.update();
+
+      psdData = { frequencies: limitedFrequencies, psdValues: limitedPSD };
     }
     </script>
   </body>
