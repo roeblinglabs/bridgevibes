@@ -230,7 +230,8 @@
             geolocation = position;
             document.getElementById("demo").innerHTML = "Latitude: " + position.coords.latitude +
               "<br>Longitude: " + position.coords.longitude +
-              "<br>Geolocation Accuracy: " + position.coords.accuracy + " (meters)";
+              "<br>Geolocation Accuracy: " + position.coords.accuracy + " (meters)"
+              "<br>Timestamp: " + position.timestamp ;
           });
         } else {
           document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
@@ -252,7 +253,7 @@
       } 
 
       function computePSD() {
-        const fftSize = 256; // Size of the FFT window
+        const fftSize = 500; // Size of the FFT window, 500 is a 10 second chunk at 50 Hz sampling rate
         const overlap = fftSize / 2; // 50% overlap
         const fft = new FFT(fftSize, sampleRate);
         const windowFunction = new WindowFunction(DSP.HANN);
