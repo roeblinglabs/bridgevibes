@@ -38,6 +38,15 @@
 
         <button id="downloadButton" class="btn btn-lg btn-primary py-1">Download Accelerometer Data</button>
         <button id="downloadSpectrumButton" class="btn btn-lg btn-secondary py-1">Download Spectrum Data</button>
+
+        <div id="geo-info">
+          <p>Latitude: <span id="geo-latitude"></span></p>
+          <p>Longitude: <span id="geo-longitude"></span></p>
+          <p>Geolocation Accuracy: <span id="geo-accuracy"></span> meters</p>
+          <p>Date: <span id="geo-date"></span></p>
+          <p>Time: <span id="geo-time"></span></p>
+        </div>
+
         <h2>Contact Us</h2>
         <p>Subscribe: <a href="https://forms.gle/fH6NiMfZ5ZGGMGwD7" target="_blank">Newsletter</a> </p>
         <p>User Feedback: <a href="https://forms.gle/MXPPgLcDx8tSyLX49" target="_blank">Questionnaire</a> (4 Q's in 30 seconds)</p>
@@ -46,7 +55,7 @@
       </div>
     </main>
 
-    <p id="demo"></p>
+    <p id="demo" style="display:none;"></p>
 
     <script>
       const sampleRate = 50; // Sample rate in Hz
@@ -280,14 +289,14 @@
             const date = new Date();
             const dateString = date.toLocaleDateString();
             const timeString = date.toLocaleTimeString();
-            document.getElementById("demo").innerHTML = "Latitude: " + position.coords.latitude +
-              "<br>Longitude: " + position.coords.longitude +
-              "<br>Geolocation Accuracy: " + position.coords.accuracy + " meters" +
-              "<br>Date: " + dateString +
-              "<br>Time: " + timeString;
+            document.getElementById("geo-latitude").innerText = position.coords.latitude;
+            document.getElementById("geo-longitude").innerText = position.coords.longitude;
+            document.getElementById("geo-accuracy").innerText = position.coords.accuracy;
+            document.getElementById("geo-date").innerText = dateString;
+            document.getElementById("geo-time").innerText = timeString;
           });
         } else {
-          document.getElementById("demo").innerHTML = "Geolocation is not supported by this browser.";
+          document.getElementById("geo-info").innerHTML = "Geolocation is not supported by this browser.";
         }
       }
 
