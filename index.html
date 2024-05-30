@@ -50,7 +50,7 @@
 
         <h2>Contact Us</h2>
         <p>Subscribe: <a href="https://forms.gle/fH6NiMfZ5ZGGMGwD7" target="_blank">Newsletter</a> </p>
-        <p>User Feedback: <a href="https://forms.gle/MXPPgLcDx8tSyLX49" target="_blank">Questionnaire</a>  <---  Please respond. We value your feedback. (4 Q's in 30 seconds)</p>
+        <p>User Feedback: <a href="https://forms.gle/MXPPgLcDx8tSyLX49" target="_blank">Questionnaire</a> (4 Q's in 30 seconds)</p>
         <p>Email: <a href="mailto:scott@roeblinglabs.com">scott@roeblinglabs.com</a></p>
         <p>Connect: <a href="https://www.linkedin.com/in/scottsnellingpe/" target="_blank">LinkedIn</a></p>
       </div>
@@ -129,18 +129,11 @@
               }
             },
             y: {
-              type: 'logarithmic',
               title: {
                 display: true,
                 text: 'PSD (g^2/Hz)'
               },
-              ticks: {
-                callback: function(value) {
-                  return value.toExponential(1); // Display values in scientific notation
-                },
-                min: 1e-4, // Initial value, will be adjusted dynamically
-                max: 0.02 // Initial value, will be adjusted dynamically
-              }
+              min: 0
             }
           }
         }
@@ -315,32 +308,31 @@
         return sineWave;
       } 
 
-    function computePSD() {
-      const signalLength = accelData.length;
-      const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
-      const paddedSignal = new Float32Array(paddedLength);
-      paddedSignal.set(accelData);
-      
-      const fft = new FFT(paddedLength, sampleRate);
-      fft.forward(paddedSignal);
-      const psd = fft.spectrum;
+      function computePSD() {
+        const signalLength = accelData.length;
+        const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
+        const paddedSignal = new Float32Array(paddedLength);
+        paddedSignal.set(accelData);
+        
+        const fft = new FFT(paddedLength, sampleRate);
+        fft.forward(paddedSignal);
+        const psd = fft.spectrum;
 
-      const frequencyStep = sampleRate / paddedLength;
-      const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
-      const limitedFrequencies = frequencies.filter(f => f <= 25);
-      const limitedPSD = psd.slice(0, limitedFrequencies.length);
+        const frequencyStep = sampleRate / paddedLength;
+        const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
+        const limitedFrequencies = frequencies.filter(f => f <= 25);
+        const limitedPSD = psd.slice(0, limitedFrequencies.length);
 
-      const minPSD = Math.min(...limitedPSD.filter(v => v > 0)); // Find the minimum non-zero value for the Y-axis range
-      const maxPSD = Math.max(...limitedPSD);
+        const maxPSD = Math.max(...limitedPSD);
 
-      psdChart.options.scales.y.min = minPSD;
-      psdChart.options.scales.y.max = maxPSD;
-      psdChart.data.labels = Array.from({ length: 26 }, (_, i) => i);
-      psdChart.data.datasets[0].data = limitedPSD;
-      psdChart.update();
+        psdChart.options.scales.y.min = 0;
+        psdChart.options.scales.y.max = maxPSD;
+        psdChart.data.labels = limitedFrequencies;
+        psdChart.data.datasets[0].data = limitedPSD;
+        psdChart.update();
 
-      psdData = { frequencies: limitedFrequencies, psdValues: limitedPSD };
-    }
+        psdData = { frequencies: limitedFrequencies, psdValues: limitedPSD };
+      }
     </script>
   </body>
 </html>
