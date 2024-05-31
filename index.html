@@ -315,30 +315,31 @@
         return sineWave;
       } 
 
-      function computePSD() {
-        const signalLength = accelData.length;
-        const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
-        const paddedSignal = new Float32Array(paddedLength);
-        paddedSignal.set(accelData);
-        
-        const fft = new FFT(paddedLength, sampleRate);
-        fft.forward(paddedSignal);
-        const psd = fft.spectrum;
+function computePSD() {
+  const signalLength = accelData.length;
+  const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
+  const paddedSignal = new Float32Array(paddedLength);
+  paddedSignal.set(accelData);
+  
+  const fft = new FFT(paddedLength, sampleRate);
+  fft.forward(paddedSignal);
+  const psd = fft.spectrum;
 
-        const frequencyStep = sampleRate / paddedLength;
-        const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
-        const limitedFrequencies = frequencies.filter(f => f <= 25);
-        const limitedPSD = psd.slice(0, limitedFrequencies.length);
+  const frequencyStep = sampleRate / paddedLength;
+  const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
 
-        const maxPSD = Math.max(...limitedPSD);
+  const maxFrequency = frequencies[frequencies.length - 1];
+  const maxPSD = Math.max(...psd);
 
-        psdChart.options.scales.y.max = Math.max(20, maxPSD);
-        psdChart.data.labels = limitedFrequencies.map(f => Math.round(f)); // Convert to integer Hz values
-        psdChart.data.datasets[0].data = limitedPSD;
-        psdChart.update();
+  psdChart.options.scales.x.max = maxFrequency;
+  psdChart.options.scales.y.max = Math.max(20, maxPSD);
+  psdChart.data.labels = frequencies.map(f => f.toFixed(2)); // Use toFixed(2) for better precision
+  psdChart.data.datasets[0].data = psd;
+  psdChart.update();
 
-        psdData = { frequencies: limitedFrequencies, psdValues: limitedPSD };
-      }
+  psdData = { frequencies, psdValues: psd };
+}
+
     </script>
   </body>
 </html>
