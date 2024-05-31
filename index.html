@@ -129,17 +129,16 @@
               }
             },
             y: {
-              type: 'logarithmic',
               title: {
                 display: true,
                 text: 'PSD (g^2/Hz)'
               },
               ticks: {
                 callback: function(value) {
-                  return value.toExponential(1); // Display values in scientific notation
+                  return value.toFixed(1); // Display values in decimal format rounded to one decimal place
                 },
-                min: 1e-4, // Initial value, will be adjusted dynamically
-                max: 0.02 // Initial value, will be adjusted dynamically
+                min: 0,
+                max: 20 // Default max value, will be adjusted dynamically
               }
             }
           }
@@ -330,12 +329,10 @@
       const limitedFrequencies = frequencies.filter(f => f <= 25);
       const limitedPSD = psd.slice(0, limitedFrequencies.length);
 
-      const minPSD = Math.min(...limitedPSD.filter(v => v > 0)); // Find the minimum non-zero value for the Y-axis range
       const maxPSD = Math.max(...limitedPSD);
 
-      psdChart.options.scales.y.min = minPSD;
-      psdChart.options.scales.y.max = maxPSD;
-      psdChart.data.labels = Array.from({ length: 26 }, (_, i) => i);
+      psdChart.options.scales.y.max = Math.max(20, maxPSD);
+      psdChart.data.labels = limitedFrequencies.map(f => Math.round(f)); // Convert to integer Hz values
       psdChart.data.datasets[0].data = limitedPSD;
       psdChart.update();
 
