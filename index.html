@@ -107,7 +107,7 @@
       const psdChart = new Chart(ctxPSD, {
         type: 'line',
         data: {
-          labels: [], // Will be set dynamically
+          // labels: Array.from({ length: 6 }, (_, i) => i * 5), // 0, 5, 10, 15, 20, 25 Hz
           datasets: [{
             label: 'PSD',
             data: [],
@@ -122,13 +122,13 @@
                 display: true,
                 text: 'Frequency (Hz)'
               },
-              min: 0,
-              max: 25,
+              // min: 0,
+              // max: 25,
               ticks: {
-                stepSize: 5,
-                callback: function(value) {
-                  return value % 5 === 0 ? value : '';
-                }
+                // stepSize: 5,
+                // callback: function(value) {
+                //   return value % 5 === 0 ? value : '';
+                // }
               }
             },
             y: {
@@ -315,31 +315,54 @@
         return sineWave;
       } 
 
-function computePSD() {
-  const signalLength = accelData.length;
-  const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
-  const paddedSignal = new Float32Array(paddedLength);
-  paddedSignal.set(accelData);
-  
-  const fft = new FFT(paddedLength, sampleRate);
-  fft.forward(paddedSignal);
-  const psd = fft.spectrum;
+      function computePSD() {
+        // Get the current URL
+        const url = new URL(window.location.href);
+        // Get the value of the query string parameter
+        const sine = url.searchParams.get('sine');
+        if (sine === '1') {    
+            // Sine wave test
+            const duration = url.searchParams.get('dur') || 1; // Duration in seconds
+            const frequency = url.searchParams.get('freq') || 8; // Frequency in Hz
+            const amplitude = url.searchParams.get('amp') || 12; // Amplitude of the sine wave
+            accelData = generateSineWave(duration, frequency, amplitude);
+        }
+      
+        const signalLength = accelData.length;
+        console.log("accelData.length: " + accelData.length);
+        const paddedLength = Math.pow(2, Math.ceil(Math.log2(signalLength)));
+        console.log("paddedLength: " + paddedLength);
+        const paddedSignal = new Float32Array(paddedLength);
+        paddedSignal.set(accelData);
+        
+        const fft = new FFT(paddedLength, sampleRate);
+        console.log("sampleRate: " + sampleRate);
+        fft.forward(paddedSignal);
+        const psd = fft.spectrum;
+        console.log("psd: " + psd);
+        console.log("psd.length: " + psd.length);
 
-  const frequencyStep = sampleRate / paddedLength;
-  const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
+        const frequencyStep = sampleRate / paddedLength;
+        console.log("frequencyStep: " + frequencyStep);
+        const frequencies = Array.from({ length: psd.length }, (_, i) => i * frequencyStep);
+        console.log("frequencies: " + frequencies);
+        console.log("frequencies.length: " + frequencies.length);
+        const limitedFrequencies = frequencies.filter(f => f <= 25);        
+        console.log("limitedFrequencies: " + limitedFrequencies);
+        console.log("limitedFrequencies.length: " + limitedFrequencies.length);
+        const limitedPSD = psd.slice(0, limitedFrequencies.length);
+        console.log("limitedPSD: " + limitedPSD);
+        console.log("limitedPSD.length: " + limitedPSD.length);
 
-  const maxFrequency = frequencies[frequencies.length - 1];
-  const maxPSD = Math.max(...psd);
+        const maxPSD = Math.max(...limitedPSD);
 
-  psdChart.options.scales.x.max = maxFrequency;
-  psdChart.options.scales.y.max = Math.max(20, maxPSD);
-  psdChart.data.labels = frequencies.map(f => f.toFixed(2)); // Use toFixed(2) for better precision
-  psdChart.data.datasets[0].data = psd;
-  psdChart.update();
+        psdChart.options.scales.y.max = maxPSD; // Math.max(20, maxPSD);
+        psdChart.data.labels = limitedFrequencies; //.map(f => Math.round(f)); // Convert to integer Hz values
+        psdChart.data.datasets[0].data = limitedPSD;
+        psdChart.update();
 
-  psdData = { frequencies, psdValues: psd };
-}
-
+        psdData = { frequencies: limitedFrequencies, psdValues: limitedPSD };
+      }
     </script>
   </body>
 </html>
