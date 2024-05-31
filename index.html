@@ -59,7 +59,7 @@
     <p id="demo" style="display:none;"></p>
 
     <script>
-      const sampleRate = 128; // Sample rate in Hz
+      const sampleRate = 512; // Sample rate in Hz
       const windowSize = sampleRate * 30; // Display 30 seconds of data
       let accelData = [];
       let isMeasuring = false;
@@ -332,7 +332,7 @@
 
         const maxPSD = Math.max(...limitedPSD);
 
-        psdChart.options.scales.y.max = Math.max(20, maxPSD);
+        psdChart.options.scales.y.max = Math.max(5, maxPSD);
         psdChart.data.labels = limitedFrequencies.map(f => Math.round(f)); // Convert to integer Hz values
         psdChart.data.datasets[0].data = limitedPSD;
         psdChart.update();
