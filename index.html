@@ -59,7 +59,7 @@
     <p id="demo" style="display:none;"></p>
 
     <script>
-      const sampleRate = 128; // Sample rate in Hz
+      const sampleRate = 256; // Sample rate in Hz
       const windowSize = sampleRate * 30; // Display 30 seconds of data
       let accelData = [];
       let isMeasuring = false;
@@ -137,7 +137,7 @@
                 text: 'PSD (g^2/Hz)'
               },
               min: 0,
-              max: 20,
+              max: 2,
               ticks: {
                 beginAtZero: true,
               }
