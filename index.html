@@ -120,7 +120,6 @@
       const psdChart = new Chart(ctxPSD, {
         type: 'line',
         data: {
-          // labels: Array.from({ length: 6 }, (_, i) => i * 5), // 0, 5, 10, 15, 20, 25 Hz
           datasets: [{
             label: 'PSD',
             data: [],
@@ -135,13 +134,8 @@
                 display: true,
                 text: 'Frequency (Hz)'
               },
-              // min: 0,
-              // max: 25,
               ticks: {
-                // stepSize: 5,
-                // callback: function(value) {
-                //   return value % 5 === 0 ? value : '';
-                // }
+                stepSize: 5 // Vertical lines at 5 Hz intervals
               }
             },
             y: {
@@ -149,10 +143,12 @@
                 display: true,
                 text: 'PSD (g^2/Hz)'
               },
-              min: 0,
-              max: 20,
               ticks: {
-                beginAtZero: true,
+                callback: function(value) {
+                  return value.toFixed(1); // Display values in decimal format rounded to one decimal place
+                },
+                min: 0,
+                max: 20 // Default max value, will be adjusted dynamically
               }
             }
           }
@@ -190,6 +186,7 @@
         isMeasuring = true;
         accelData = [];
         getGeolocation();
+        resetPSDChart(); // Reset the PSD chart when starting a new measurement
         document.getElementById("start_demo").innerHTML = "<h1>Stop Measuring Bridge Vibrations</h1>";
         document.getElementById("start_demo").classList.remove('btn-success');
         document.getElementById("start_demo").classList.add('btn-danger');
@@ -373,6 +370,12 @@
         psdChart.update();
 
         psdData = { frequencies: limitedFrequencies, psdValues: limitedPSD };
+      }
+
+      function resetPSDChart() {
+        psdChart.data.labels = [];
+        psdChart.data.datasets[0].data = [];
+        psdChart.update();
       }
     </script>
   </body>
