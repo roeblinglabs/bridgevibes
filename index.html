@@ -8,20 +8,11 @@
     <style>
       #start_demo, #downloadButton, #downloadSpectrumButton {
         font-size: 24px;
-        padding: 40px; /* Increase padding for taller buttons */
+        padding: 20px;
       }
-      #start_demo h1 {
+      .btn-lg h1 {
         margin: 0;
         font-size: 2em;
-        line-height: 1.5em; /* Line height to create three lines */
-      }
-      .btn-success {
-        background-color: green;
-        color: white;
-      }
-      .btn-danger {
-        background-color: red;
-        color: white;
       }
     </style>
   </head>
@@ -192,6 +183,7 @@
         document.getElementById("start_demo").innerHTML = "<h1>Stop Measuring Bridge Vibrations</h1>";
         document.getElementById("start_demo").classList.remove('btn-success');
         document.getElementById("start_demo").classList.add('btn-danger');
+        document.getElementById("start_demo").style.fontSize = "24px";
         window.addEventListener("devicemotion", handleMotion);
       }
 
@@ -201,6 +193,7 @@
         document.getElementById("start_demo").innerHTML = "<h1>Restart Measuring Bridge Vibrations</h1>";
         document.getElementById("start_demo").classList.add('btn-success');
         document.getElementById("start_demo").classList.remove('btn-danger');
+        document.getElementById("start_demo").style.fontSize = "24px";
         computePSD();
       }
 
